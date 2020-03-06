@@ -4,7 +4,7 @@ from app import app
 import logging
 import os
 from werkzeug.utils import secure_filename
-from app.utils import allowed_file, unzip_folder, get_dockerfile
+from app.utils import allowed_file, unzip_folder
 
 log = logging.getLogger('pydrop')
 
@@ -93,7 +93,6 @@ def upload_code_base():
 
             # searches for dockerfile in the extracted folder
             # call this function after the user presses on the submit button or so
-            get_dockerfile()
             return redirect('/')
         else:
             flash('Allowed file types are txt, pdf, png, jpg, jpeg, gif')
