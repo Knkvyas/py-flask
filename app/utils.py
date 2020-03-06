@@ -1,18 +1,14 @@
-import zipfile
 import time
 import subprocess
 
 from app import app, UPLOAD_FOLDER
 import os
-import glob
 import zipfile
 
 ALLOWED_EXTENSIONS = {'rar', 'tar.gz', 'png', 'jpg', 'jpeg', 'gif', 'pdf', 'zip'}
-UNZIPPED_FILE_PATH = ''
-FILE_NAME = ''
+
 
 def allowed_file(filetype):
-    print(filetype, 'filename')
     for allowed_ext in ALLOWED_EXTENSIONS:
         if allowed_ext in filetype.lower():
             return True
@@ -21,21 +17,35 @@ def allowed_file(filetype):
 
 def unzip_folder():
     entry = os.listdir(UPLOAD_FOLDER)
-    print(UPLOAD_FOLDER)
-    print(entry)
+
     zipped_file_path = UPLOAD_FOLDER + '/' + entry[0]
-    print(zipped_file_path)
 
     FILE_NAME = os.path.splitext(entry[0])[0]
     UNZIPPED_FILE_PATH = UPLOAD_FOLDER + '/' + FILE_NAME
-    print(UNZIPPED_FILE_PATH)
-
-
 
     with zipfile.ZipFile(zipped_file_path, 'r') as zip_ref:
         zip_ref.extractall(UPLOAD_FOLDER + '/')
 
     time.sleep(20)
+
+    # docker_file_path = get_docker_file_path(UNZIPPED_FILE_PATH)
+
+    # building the docker image for the unzipped codebase
+    build_docker_image(UNZIPPED_FILE_PATH)
+
+    # pushing the docker image to the portus
+    push_docker_image_to_portus()
+
+    time.sleep(20)
+
+    # deleting the resources
+    delete_resources()
+
+    # deleting the files present inside the uploads folder
+    delete_uploads(UNZIPPED_FILE_PATH)
+
+
+def get_docker_file_path(UNZIPPED_FILE_PATH):
     docker_file_path = ''
 
     # r=>root, d=>directories, f=>files
@@ -46,34 +56,42 @@ def unzip_folder():
                 break
 
     print("Dockerfile path: {}".format(docker_file_path))
+    return docker_file_path
 
-    lower_file_name = FILE_NAME.lower()
 
-    subprocess.call("pwd")
-    print(UNZIPPED_FILE_PATH)
-    print(UNZIPPED_FILE_PATH)
-    print(UNZIPPED_FILE_PATH)
-
+def build_docker_image(UNZIPPED_FILE_PATH):
+    print("Started building Docker image ...")
     os.chdir(UNZIPPED_FILE_PATH)
-    print(UNZIPPED_FILE_PATH)
-    print(UNZIPPED_FILE_PATH)
-
     subprocess.call(["docker", "build", "-t", "myapp:latest", "."])
-
-    print("Pushing image to portus...")
-    upload_docker_image_to_portus()
-
-    time.sleep(60)
-    delete_resources()
+    print("Docker image built successfully!!")
 
 
-def upload_docker_image_to_portus():
+def push_docker_image_to_portus():
+    print("Started pushing the images to the portus ...")
     subprocess.call(["docker", "login", "portus.hashedin.com"])
     subprocess.call(["docker", "tag", "myapp:latest", "portus.hashedin.com/sankalp.saxena/myapp:latest"])
     subprocess.call(["docker", "push", "portus.hashedin.com/sankalp.saxena/myapp:latest"])
-    print("Image pushed to portus successully")
+    print("Image pushed to portus successully!!")
 
 
 def delete_resources():
+    print("Deleting images ...")
     subprocess.call(["docker", "rmi", "myapp:latest"])
-    print("Image deleted successfully")
+    print("Image deleted successfully!!")
+
+
+def delete_uploads(UNZIPPED_FILE_PATH):
+    file_name = UNZIPPED_FILE_PATH.split('/')
+    os.chdir(UPLOAD_FOLDER)
+
+    print("Currently inside the directory: ")
+    subprocess.call("pwd")
+    print("Deleting the files inside uploads ...")
+
+    # Deleting the uploaded zipped codebase file
+    subprocess.call(["rm", file_name[-1] + ".zip"])
+
+    # Deleting the unzipped codebase
+    subprocess.call(["rm", "-r", file_name[-1]])
+
+    print("Zipped and unzipped codebase deleted successfully!!")
