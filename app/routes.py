@@ -4,9 +4,10 @@ from app import app
 import logging
 import os
 from werkzeug.utils import secure_filename
-from app.utils import allowed_file, unzip_folder
+from app.utils import allowed_file, execute_process
 
 log = logging.getLogger('pydrop')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -89,7 +90,7 @@ def upload_code_base():
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             flash('File successfully uploaded')
-            unzip_folder()
+            execute_process()
 
             # searches for dockerfile in the extracted folder
             # call this function after the user presses on the submit button or so
