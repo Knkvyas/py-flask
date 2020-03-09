@@ -29,7 +29,7 @@ def execute_process():
     build_docker_image(UNZIPPED_FILE_PATH)
 
     # pushing the docker image to the portus
-    # push_docker_image_to_portus()
+    push_docker_image_to_portus()
 
     time.sleep(20)
 
