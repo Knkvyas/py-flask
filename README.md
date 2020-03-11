@@ -40,3 +40,6 @@ flask db upgrade
 ```
 
 ## Add the configurations inside the pycharm and run the project
+'''
+Set the python interpreter of the Pycharm to the working directory /home/sankalp_saxena/Desktop/ku8e-it-out/venv/bin
+'''
