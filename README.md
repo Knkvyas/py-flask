@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Ku8e it Out
 
 ## Run these below commands in the terminal to build and run the project
@@ -43,3 +44,7 @@ flask db upgrade
 '''
 Set the python interpreter of the Pycharm to the working directory /home/sankalp_saxena/Desktop/ku8e-it-out/venv/bin
 '''
+=======
+# py-flask
+A website using python , postgres and FLask for backend.
+>>>>>>> 29c73c2c1825578c2016f8f83b34e0e80f0d8707
